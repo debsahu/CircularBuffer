@@ -50,7 +50,9 @@ public:
 	 */
 	using index_t = IT;
 
-	constexpr CircularBuffer();
+	CircularBuffer();
+
+	~CircularBuffer();
 
 	/**
 	 * Disables copy constructor
@@ -134,7 +136,7 @@ public:
 	#endif
 
 private:
-	T buffer[S];
+	T *buffer;
 	T *head;
 	T *tail;
 #ifndef CIRCULAR_BUFFER_INT_SAFE

@@ -17,8 +17,18 @@
  */
 
 template<typename T, size_t S, typename IT>
-constexpr CircularBuffer<T,S,IT>::CircularBuffer() :
+CircularBuffer<T,S,IT>::CircularBuffer() :
 		head(buffer), tail(buffer), count(0) {
+			//buffer = (T*) malloc(S * sizeof(T));
+			psramInit();
+			buffer = (T*) heap_caps_malloc(S * sizeof(T), MALLOC_CAP_SPIRAM);
+}
+
+template<typename T, size_t S, typename IT>
+CircularBuffer<T,S,IT>::~CircularBuffer() {
+	if(buffer != NULL) {
+		heap_caps_free(buffer);
+	}
 }
 
 template<typename T, size_t S, typename IT>
@@ -42,6 +52,8 @@ bool CircularBuffer<T,S,IT>::unshift(T value) {
 
 template<typename T, size_t S, typename IT>
 bool CircularBuffer<T,S,IT>::push(T value) {
+//	buffer[count++] = value;
+//	if(count >= S) count = 0;
 	if (++tail == buffer + capacity) {
 		tail = buffer;
 	}
@@ -95,6 +107,7 @@ template<typename T, size_t S, typename IT>
 T CircularBuffer<T,S,IT>::operator [](IT index) const {
 	if (index >= count) return *tail;
 	return *(buffer + ((head - buffer + index) % capacity));
+//	return buffer[index];
 }
 
 template<typename T, size_t S, typename IT>
