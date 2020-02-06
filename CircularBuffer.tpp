@@ -19,15 +19,23 @@
 template<typename T, size_t S, typename IT>
 CircularBuffer<T,S,IT>::CircularBuffer() :
 		head(buffer), tail(buffer), count(0) {
-			//buffer = (T*) malloc(S * sizeof(T));
+			#if defined(BOARD_HAS_PSRAM) and defined(ARDUINO_ARCH_ESP32)
 			psramInit();
 			buffer = (T*) heap_caps_malloc(S * sizeof(T), MALLOC_CAP_SPIRAM);
+			#else
+			buffer = (T*) malloc(S * sizeof(T));
+			#endif
+
 }
 
 template<typename T, size_t S, typename IT>
 CircularBuffer<T,S,IT>::~CircularBuffer() {
 	if(buffer != NULL) {
+		#if defined(BOARD_HAS_PSRAM) and defined(ARDUINO_ARCH_ESP32)
 		heap_caps_free(buffer);
+		#else
+		free(buffer);
+		#endif
 	}
 }
 
